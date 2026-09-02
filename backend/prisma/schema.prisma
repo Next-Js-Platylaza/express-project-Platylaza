@@ -7,29 +7,25 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model JobApplication {
+model Book {
   id        String  @id @default(auto()) @map("_id") @db.ObjectId
-  company   String
-  role      String
-  dateApplied DateTime?
+  title     String
+  author    String
+  genre     String
   status    Status
-  notes   String?
-  user User @relation(fields: [userEmail], references: [email])
+  user      User @relation(fields: [userEmail], references: [email])
   userEmail String
 }
 
 model User {
-  id    String  @id @default(auto()) @map("_id") @db.ObjectId
-  email String  @unique
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  email     String  @unique
   password  String
-  jobApplications JobApplication[]
+  books     Book[]
 }
 
 enum Status {
-  NOT_APPLIED
-  AWAITING_FEEDBACK
-  INTERVIEWED
-  OFFER_EXTENDED
-  OFFER_ACCEPTED
-  REJECTED
+  TO_READ
+  READING
+  FINISHED
 }

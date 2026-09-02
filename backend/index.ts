@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
 import express from "express";
 import jwt from "jsonwebtoken";
-import auth, { CustomRequest } from "./auth";
 import bcrypt from "bcrypt";
+import auth, { CustomRequest } from "./auth";
 
 const app = express();
 app.use(express.json());
@@ -29,10 +29,10 @@ app.post("/signup", async (req, res) => {
 		})
 
 		res.status(200).json({message: "User successfully created"});
-	} catch(error) {
+	} catch(err) {
 		console.log("error");
-		console.log(error);
-		res.status(400).json({"message": `Error: ${error}`});
+		console.log(err);
+		res.status(400).json({"message": `Error: ${err}`});
 	}
 });
 
@@ -60,9 +60,34 @@ app.post("/login", async (req, res) => {
 		message: "Successfully logged in",
 		token
 	})
-} catch(error) {
+} catch(err) {
 		console.log("error");
-		console.log(error);
-		res.status(400).json({"message": `Error: ${error}`});
+		console.log(err);
+		res.status(400).json({"message": `Error: ${err}`});
 	}
+})
+
+app.get("/books", auth, async (req: CustomRequest, res) => {
+	const user = req.user;
+	try {
+		if (!user) throw new Error("Invalid login");
+
+		const result = await prisma.book.findMany({
+			where: {
+				userEmail: user.email,
+			}
+		});
+
+		console.log(result);
+		console.log("result");
+		res.status(200).json({books: result});
+	} catch (err) {
+		console.log("error");
+		console.log(err);
+		res.status(400).json({"message": `Error: ${err}`});
+	}
+})
+
+app.listen(port, () => {
+	console.log(`Express app listening on port ${port}`);
 })
