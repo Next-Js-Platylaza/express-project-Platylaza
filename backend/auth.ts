@@ -20,6 +20,7 @@ export default async function auth(req: Request, res: Response, next: NextFuncti
     } catch (err) {
         console.log("error");
         console.log(err);
+
         res.status(401).send(`Authentication failed: ${err}`);
     }
 }
