@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Status } from "@prisma/client";
 import express from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
@@ -31,7 +31,7 @@ app.post("/signup", async (req, res) => {
 	} catch(err) {
 		console.log("error");
 		console.log(err);
-		res.status(400).json({"message": `Error: ${err}`});
+		res.status(400).json({"message": `${err}`});
 	}
 });
 
@@ -61,10 +61,10 @@ app.post("/login", async (req, res) => {
 } catch(err) {
 		console.log("error");
 		console.log(err);
-		res.status(400).json({"message": `Error: ${err}`});
+		res.status(400).json({"message": `${err}`});
 	}
 })
-// process.env.AUTH_SECRET = require('crypto').randomBytes(64).toString('hex');
+
 app.post("/logout", auth, async (req: CustomRequest, res) => {
 	// Note: I understand this isn't something you would do in production,
 	// but it was about the only way I could get signing-out to work with JTW.
@@ -78,19 +78,22 @@ app.post("/logout", auth, async (req: CustomRequest, res) => {
 	} catch (err) {
 		console.log("error");
 		console.log(err);
-		res.status(400).json({"message": `Error: ${err}`});
+		res.status(400).json({"message": `${err}`});
 	}
 })
 
 app.get("/books", auth, async (req: CustomRequest, res) => {
 	const user = req.user;
-	
+	const { status } = req.query;
+
 	try {
 		if (!user) throw new Error("Invalid login");
+		if (status && !Object.values(Status).includes(status as Status)) throw new Error(`Invalid status. Try one of: ${Object.values(Status).join(', ')}`);
 
 		const result = await prisma.book.findMany({
 			where: {
 				userEmail: user.email,
+				...(status ? {status: status as Status} : {}),
 			}
 		});
 
@@ -100,7 +103,7 @@ app.get("/books", auth, async (req: CustomRequest, res) => {
 	} catch (err) {
 		console.log("error");
 		console.log(err);
-		res.status(400).json({"message": `Error: ${err}`});
+		res.status(400).json({"message": `${err}`});
 	}
 })
 
@@ -113,6 +116,7 @@ app.post("/books", auth, async (req: CustomRequest, res) => {
 		if (!author) throw new Error("Author is required");
 		if (!genre) throw new Error("Genre is required");
 		if (!status) throw new Error("Status is required");
+		if (!Object.values(Status).includes(status)) throw new Error(`Invalid status. Try one of: ${Object.values(Status).join(', ')}`);
 		if (!user?.email) throw new Error("Not logged in");
 		const createdBook = await prisma.book.create({
 			data: {
@@ -128,10 +132,10 @@ app.post("/books", auth, async (req: CustomRequest, res) => {
 		});
 
 		res.status(200).json({message: `Book with id ${createdBook.id} created`})
-	}catch(error){
+	}catch(err){
 		console.log("error");
-		console.log(error);
-		res.status(400).json({ message: `Error: ${error}`})
+		console.log(err);
+		res.status(400).json({ message: `${err}`})
 	}
 });
 
@@ -145,6 +149,7 @@ app.put("/books/:id", auth, async (req: CustomRequest, res) => {
 		if (!author) throw new Error("Author is required");
 		if (!genre) throw new Error("Genre is required");
 		if (!status) throw new Error("Status is required");
+		if (!Object.values(Status).includes(status)) throw new Error(`Invalid status. Try one of: ${Object.values(Status).join(', ')}`);
 		if (!user?.email) throw new Error("Not logged in");
 
 		const createdBook = await prisma.book.update({
@@ -161,10 +166,10 @@ app.put("/books/:id", auth, async (req: CustomRequest, res) => {
 		});
 
 		res.status(200).json({message: `Book with id ${createdBook.id} updated`})
-	}catch(error){
+	}catch(err){
 		console.log("error");
-		console.log(error);
-		res.status(400).json({ message: `Error: ${error}`})
+		console.log(err);
+		res.status(400).json({ message: `${err}`})
 	}
 });
 
@@ -183,10 +188,10 @@ app.delete("/books/:id", auth, async (req: CustomRequest, res) => {
 		})
 
 		res.status(200).json({message: `Successfully deleted book with id ${id}`})
-	}catch(error){
+	}catch(err){
 		console.log("error");
-		console.log(error);
-		res.status(400).json({ message: `Error: ${error}`})
+		console.log(err);
+		res.status(400).json({ message: `${err}`})
 	}
 });
 
