@@ -47,7 +47,7 @@ export default function BookDiv({book,} : {book: Book}) {
                 <br/>
 
                 <label htmlFor="status">Select:</label>
-                <select name="status" defaultValue={newStatus} required onChange={handleChangeToStatus}>
+                <select name="status" defaultValue={newStatus} key={newStatus} required onChange={handleChangeToStatus}>
                     <option value="TO_READ">To Read</option>
                     <option value="READING">Reading</option>
                     <option value="FINISHED">Finished</option>

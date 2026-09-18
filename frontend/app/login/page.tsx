@@ -15,7 +15,7 @@ export default function Page(){
               <label htmlFor="password">Password:</label>
               <input type="password" name="password"></input>
             </div>
-            <button type="submit" className="w-full bg-red-200 border-1 p-1 my-1">Login</button>
+            <button type="submit" className="w-full border-1 p-1 my-1">Login</button>
           </form>
           </div>
           <h4 className="-mt-5 m-auto" >Don't have an account? <Link href="/" className="text-blue-600 underline hover:text-blue-800 backdrop-blur-none">Create one here.</Link></h4>
